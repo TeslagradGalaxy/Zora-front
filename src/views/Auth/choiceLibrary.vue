@@ -19,6 +19,25 @@ async function fetchQuestions() {
   }
 }
 
+// 删除选择题的函数
+async function deleteQuestion(questionId) {
+  const confirmDelete = confirm("确定要删除此选择题吗？");
+  if (!confirmDelete) return;
+
+  try {
+    const response = await axios.delete(`/choice/${questionId}`);
+    if (response.data.code !== 200) {
+      throw new Error(response.data.msg || "删除失败");
+    }
+    // 删除成功后更新本地数据
+    questions.value = questions.value.filter((q) => q.id !== questionId);
+    alert("选择题已成功删除！");
+  } catch (error) {
+    console.error("Error deleting question:", error);
+    alert("删除失败，请稍后重试。");
+  }
+}
+
 // 在组件挂载时请求数据
 onMounted(() => {
   fetchQuestions();
@@ -37,8 +56,15 @@ onMounted(() => {
         :key="question.id"
         class="test"
       >
-        <!-- 问题文本 -->
-        <h3 class="question-text">{{ index + 1 }}. {{ question.question }}</h3>
+        <div class="question-content">
+          <!-- 问题文本 -->
+          <h3 class="question-text">
+            {{ index + 1 }}. {{ question.question }}
+          </h3>
+
+          <!-- 删除按钮 -->
+          <button @click="deleteQuestion(question.id)">删除此题</button>
+        </div>
 
         <!-- 选项 -->
         <div class="options">
@@ -86,9 +112,16 @@ h2 {
   width: 90vw;
 }
 
+/* Flexbox 布局 */
+.question-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .question-text {
   font-size: 20px;
-  margin-bottom: 10px;
 }
 
 .options {
@@ -116,5 +149,22 @@ h2 {
   margin-top: 10px;
   font-size: 16px;
   color: #27ae60;
+}
+
+/* 删除按钮样式 */
+button {
+  padding: 8px 16px;
+  background-color: rgb(237, 38, 38);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
 }
 </style>

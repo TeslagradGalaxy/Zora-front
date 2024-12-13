@@ -44,7 +44,7 @@ async function handleSubmit() {
 <template>
   <div class="create-question-page">
     <!-- 页面标题 -->
-    <h2>创建填空题</h2>
+    <h2>创建应用题</h2>
 
     <!-- 表单 -->
     <form class="form" @submit.prevent="handleSubmit">

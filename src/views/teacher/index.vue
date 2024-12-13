@@ -41,7 +41,7 @@ const toCreateApplied = () => {
         选择题题库
       </div>
       <div class="module fill-in-question-library" @click="toAppliedLibrary">
-        填空题题库
+        应用题题库
       </div>
 
       <!-- 3个下排模块 -->
@@ -50,7 +50,7 @@ const toCreateApplied = () => {
         创建选择题
       </div>
       <div class="module create-fill-in-question" @click="toCreateApplied">
-        创建填空题
+        创建应用题
       </div>
     </div>
   </div>
