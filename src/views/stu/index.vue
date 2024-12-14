@@ -1,4 +1,3 @@
-<!-- 学生页面 -->
 <template>
   <div class="student-home">
     <!-- 顶部导航栏 -->
@@ -20,10 +19,19 @@
           </p>
           <p class="exam-score">得分：{{ exam.score }}</p>
         </div>
+        <!-- 导出试卷按钮 -->
+        <button
+          v-if="exam.isFinish"
+          class="export-exam-button"
+          @click="exportExam(exam.examPaper?.id)"
+        >
+          导出试卷
+        </button>
+        <!-- 开始考试按钮 -->
         <button
           class="start-exam-button"
           :disabled="exam.isFinish"
-          @click="startExam(exam.examPaper.id)"
+          @click="startExam(exam.examPaper?.id)"
         >
           {{ exam.isFinish ? "已完成" : "进入考试" }}
         </button>
@@ -40,6 +48,7 @@ const router = useRouter();
 const studentName = ref("学生");
 const examList = ref([]);
 
+// 页面挂载时获取试卷数据
 onMounted(async () => {
   try {
     const response = await axios.get("/stu/exam");
@@ -53,11 +62,28 @@ onMounted(async () => {
   }
 });
 
+// 导出试卷函数
+const exportExam = async (examId) => {
+  try {
+    const response = await axios.post(`/stu/exam/print/${examId}`);
+    if (response.data.code === 200) {
+      alert("试卷已导出！");
+    } else {
+      alert("导出失败：" + response.data.msg);
+    }
+  } catch (error) {
+    console.error("导出试卷错误：", error);
+    alert("导出试卷时出现错误！");
+  }
+};
+
+// 退出登录
 const logout = () => {
   localStorage.removeItem("jwt");
   window.location.href = "/";
 };
 
+// 进入考试
 function startExam(examId) {
   router.push(`/exam/${examId}`); // 跳转到试卷详情页面
 }
@@ -78,13 +104,13 @@ function startExam(examId) {
   padding: 10px 20px;
   height: 80px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-  position: sticky; /* 固定顶部 */
+  position: sticky;
   top: 0;
   z-index: 1000;
 }
 .system-name {
-  flex: 1; /* 中间占位 */
-  text-align: center; /* 居中显示 */
+  flex: 1;
+  text-align: center;
   font-size: 24px;
   font-weight: bold;
   margin: 0;
@@ -104,7 +130,6 @@ function startExam(examId) {
   border-radius: 5px;
   padding: 5px 10px;
   cursor: pointer;
-  user-select: none;
 }
 .exam-list {
   margin-top: 20px;
@@ -119,16 +144,16 @@ function startExam(examId) {
   border-radius: 8px;
   margin-bottom: 10px;
   background-color: #f9f9f9;
-  width: 1200px; /* 占据一整行 */
+  width: 1200px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
   margin-left: 300px;
 }
 
 .exam-info {
   display: flex;
-  gap: 100px; /* 每个信息之间的间距 */
-  align-items: center; /* 垂直居中 */
-  flex: 1; /* 拉伸填充左侧空间 */
+  gap: 100px;
+  align-items: center;
+  flex: 1;
 }
 
 .exam-name,
@@ -142,7 +167,8 @@ function startExam(examId) {
   font-weight: bold;
 }
 
-.start-exam-button {
+.start-exam-button,
+.export-exam-button {
   background: #3498db;
   color: white;
   border: none;
@@ -155,5 +181,14 @@ function startExam(examId) {
 .start-exam-button:disabled {
   background: #95a5a6;
   cursor: not-allowed;
+}
+
+.export-exam-button {
+  margin-right: 10px;
+  background: #2ecc71;
+}
+
+.export-exam-button:hover {
+  background: #27ae60;
 }
 </style>

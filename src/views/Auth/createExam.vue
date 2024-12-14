@@ -29,11 +29,11 @@ const router = useRouter();
 // 获取题库数据
 onMounted(async () => {
   try {
-    const response = await axios.get("/choice"); // 替换为实际的 API 地址
+    const response = await axios.get("/choice");
     if (response.data.code !== 200) {
       throw new Error(response.data.msg || "获取选择题失败");
     }
-    choiceQuestions.value = response.data.data; // 保存选择题数据
+    choiceQuestions.value = response.data.data;
   } catch (error) {
     console.error("Error fetching choiceQuestions:", error);
     alert("无法加载选择题，请稍后重试。");
@@ -43,7 +43,7 @@ onMounted(async () => {
     if (response.data.code !== 200) {
       throw new Error(response.data.msg || "获取应用题失败");
     }
-    fillQuestions.value = response.data.data; // 保存应用题数据
+    fillQuestions.value = response.data.data;
   } catch (error) {
     console.error("Error fetching fillQuestions:", error);
     alert("无法加载应用题，请稍后重试。");
@@ -52,13 +52,11 @@ onMounted(async () => {
 
 // 提交表单
 async function handleSubmit() {
-  // 检查考试名字是否为空
   if (!examName.value.trim()) {
     alert("考试名字不能为空！");
     return;
   }
 
-  // 检查选择题和填空题的选中数量是否满足要求
   if (selectedChoiceQuestions.value.length !== maxSelection) {
     alert(`请选择 ${maxSelection} 个选择题`);
     return;
@@ -69,38 +67,17 @@ async function handleSubmit() {
     return;
   }
 
-  // 构建请求数据
   const payload = {
     examPaper: { name: examName.value },
     choQues: selectedChoiceQuestions.value,
     appQues: selectedFillQuestions.value,
   };
 
-  /*   // 发送请求到后端
-  fetch("/exam", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.code === 200) {
-        alert("试卷创建成功！");
-        router.push("/teacher"); // 跳转回教师页面
-      } else {
-        alert(`创建失败: ${data.msg}`);
-      }
-    })
-    .catch(() => alert("服务器出错，请稍后重试")); */
   try {
-    // 调用后端接口
     const response = await axios.post("/exam", payload);
-
     if (response.data.code === 200) {
       alert("创建成功！");
-      router.push("/teacher"); // 返回到 /teacher 页面
+      router.push("/teacher");
     } else {
       throw new Error(response.data.msg || "未知错误");
     }
@@ -113,12 +90,9 @@ async function handleSubmit() {
 
 <template>
   <div class="create-exam-page">
-    <!-- 页面标题 -->
     <h2>创建试卷</h2>
 
-    <!-- 表单 -->
     <form class="form" @submit.prevent="handleSubmit">
-      <!-- 考试名字输入框 -->
       <div class="form-group">
         <label for="examName">考试名称:</label>
         <input
@@ -129,43 +103,70 @@ async function handleSubmit() {
         />
       </div>
 
-      <!-- 选择题列表 -->
+      <!-- 选择题下拉复选框 -->
       <div class="form-group">
-        <label for="choiceQuestions"
+        <label
           >选择题（最多选择 {{ maxSelection }} 个，剩余可选数量：{{
             remainingChoiceCount
-          }}）:</label
+          }}）：</label
         >
-        <select id="choiceQuestions" multiple v-model="selectedChoiceQuestions">
-          <option
-            v-for="question in choiceQuestions"
-            :key="question.id"
-            :value="question.id"
-          >
-            {{ question.id }}. {{ question.question }}
-          </option>
-        </select>
+        <div class="dropdown">
+          <div class="dropdown-content">
+            <div
+              v-for="question in choiceQuestions"
+              :key="question.id"
+              class="dropdown-item"
+            >
+              <input
+                type="checkbox"
+                :id="`choice-${question.id}`"
+                :value="question.id"
+                v-model="selectedChoiceQuestions"
+                :disabled="
+                  !selectedChoiceQuestions.includes(question.id) &&
+                  selectedChoiceQuestions.length >= maxSelection
+                "
+              />
+              <label :for="`choice-${question.id}`">
+                {{ question.id }}. {{ question.question }}
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- 填空题列表 -->
+      <!-- 应用题下拉复选框 -->
       <div class="form-group">
-        <label for="fillQuestions"
-          >填空题（最多选择 {{ maxSelection }} 个，剩余可选数量：{{
+        <label
+          >应用题（最多选择 {{ maxSelection }} 个，剩余可选数量：{{
             remainingFillCount
-          }}）:</label
+          }}）：</label
         >
-        <select id="fillQuestions" multiple v-model="selectedFillQuestions">
-          <option
-            v-for="question in fillQuestions"
-            :key="question.id"
-            :value="question.id"
-          >
-            {{ question.id }}. {{ question.question }}
-          </option>
-        </select>
+        <div class="dropdown">
+          <div class="dropdown-content">
+            <div
+              v-for="question in fillQuestions"
+              :key="question.id"
+              class="dropdown-item"
+            >
+              <input
+                type="checkbox"
+                :id="`fill-${question.id}`"
+                :value="question.id"
+                v-model="selectedFillQuestions"
+                :disabled="
+                  !selectedFillQuestions.includes(question.id) &&
+                  selectedFillQuestions.length >= maxSelection
+                "
+              />
+              <label :for="`fill-${question.id}`">
+                {{ question.id }}. {{ question.question }}
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- 提交按钮 -->
       <button type="submit" class="submit-button">创建试卷</button>
     </form>
   </div>
@@ -190,7 +191,7 @@ h2 {
 .form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 25px;
 }
 
 .form-group {
@@ -198,22 +199,34 @@ h2 {
   flex-direction: column;
 }
 
-label {
-  font-size: 16px;
-  font-weight: bold;
+input#examName {
+  height: 36px; /* 增大高度 */
+  font-size: 18px; /* 增大字体大小 */
+  padding: 10px; /* 增大内边距，增强视觉舒适感 */
+  border-radius: 5px;
+}
+.dropdown {
+  position: relative;
 }
 
-input,
-select {
-  padding: 10px;
+.dropdown-content {
+  max-height: 150px;
+  overflow-y: auto;
   border: 1px solid #ccc;
   border-radius: 5px;
-  font-size: 16px;
+  background: #fff;
+  padding: 10px;
 }
 
-select {
-  height: 150px;
-  width: 100%;
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
 }
 
 .submit-button {
