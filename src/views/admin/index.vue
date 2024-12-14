@@ -33,7 +33,7 @@ const logout = () => {
   <div class="admin-home">
     <!-- 顶部导航栏 -->
     <header class="navbar">
-      <h1 class="system-name">在线考试系统</h1>
+      <h1 class="system-name">在线考试系统后台</h1>
       <div class="user-info">
         <span class="admin-name">管理员</span>
         <button @click="logout" class="logout-button">退出登录</button>
@@ -98,8 +98,9 @@ const logout = () => {
 
 .system-name {
   text-align: center;
-  font-size: 24px;
+  font-size: 30px;
   font-weight: bold;
+  margin-left: 700px;
 }
 
 .user-info {
